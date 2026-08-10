@@ -27,6 +27,21 @@ Delete any unused changelog section before publishing the Release.
 
 ---
 
+## Installation
+
+1. Download the latest release ZIP.
+2. Extract the complete archive to a writable folder.
+3. Do not run the application directly from inside the ZIP.
+4. Start the application executable.
+5. Click **Select The Sims 4 Folder**.
+6. Select the main installation folder for The Sims 4.
+7. Allow the initial library scan to complete.
+8. A cache file (.dtab) will be create.
+
+Nothing needs to be installed in your Sims 4 `Mods` folder.
+
+---
+
 ## Other official download pages
 
 - **Mod The Sims:** (not yet published)
