@@ -1,0 +1,68 @@
+name: Bug report
+description: Report a reproducible problem with TS4 Animation Browser.
+title: "[Bug] "
+labels: []
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please complete the fields below.
+
+        Do not use this form for security vulnerabilities. Follow SECURITY.md instead.
+
+  - type: input
+    id: ni-version
+    attributes:
+      label: TS4 Animation Browser version
+      placeholder: "Example: 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: game-version
+    attributes:
+      label: The Sims 4 version
+      placeholder: "Example: 1.xx.xxx.xxxx"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start the software
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Attach or paste the relevant TS4 Animation Browser log or technical details.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Final checks
+      options:
+        - label: I removed older or duplicate TS4 Animation Browser files.
+          required: true
+        - label: I tested with the latest public TS4 Animation Browser release.
+          required: true
+        - label: This report does not contain passwords, tokens, private keys, or personal information.
+          required: true
