@@ -1,8 +1,33 @@
-# TS4 Animation Browser
+<img alt="TS4 Animation Browser header" src="assets/social/ts4-animation-browser-demeterio-sims-header.png" width="75%">
+
+# Demeterio's TS4 Animation Browser
 
 TS4 Animation Browser is a Windows desktop utility created by Demeterio for browsing, inspecting and previewing animation and VFX resources from a local installation of **The Sims 4**.
 
 The project is currently under development. Animation browsing is already usable, while VFX rendering remains experimental and will continue to improve over future releases.
+
+## Screenshots
+
+<p align="center">
+  <img
+    src="assets/screenshots/screenshot-ts4-animation-browser-demeterio-sim-character.png"
+    alt="TS4 Animation Browser sim character"
+    width="48%"
+  >
+  <img
+    src="assets/screenshots/screenshot-ts4-animation-browser-demeterio-animation.png"
+    alt="TS4 Animation Browser animation VFX"
+    width="48%"
+  >
+</p>
+
+<p align="center">
+  <img
+    src="assets/screenshots/screenshot-ts4-animation-browser-demeterio-technical-details-vfx.png"
+    alt="TS4 Animation Browser technical details"
+    width="100%"
+  >
+</p>
 
 ## Features
 
