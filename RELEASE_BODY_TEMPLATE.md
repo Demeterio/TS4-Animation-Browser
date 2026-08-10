@@ -36,7 +36,7 @@ Delete any unused changelog section before publishing the Release.
 5. Click **Select The Sims 4 Folder**.
 6. Select the main installation folder for The Sims 4.
 7. Allow the initial library scan to complete.
-8. A cache file (.dtab) will be create.
+8. A cache file (.dtab) will be created.
 
 Nothing needs to be installed in your Sims 4 `Mods` folder.
 
