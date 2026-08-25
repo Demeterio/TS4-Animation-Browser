@@ -1,0 +1,108 @@
+name: Modding resources / technical research
+description: Report an error, unclear claim, conflicting result, or compatibility issue in the modding resources and technical documentation.
+title: ""
+labels:
+  - documentation
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the TS4 Animation Browser modding resources (folder 'modding-resources/').
+
+        Use this form if you found a possible error, approximation, unclear statement, compatibility difference, or result that does not match your own testing in the technical documentation, PRECOMP templates, VFX/SWARM research, or related modding resources.
+
+        A different result does not necessarily mean either side is wrong. The game version, resource contents, renderer path, or tested fixture may differ, so please provide enough information for the result to be reproduced and compared.
+
+  - type: dropdown
+    id: report-type
+    attributes:
+      label: What kind of report is this?
+      options:
+        - Documentation error or incorrect statement
+        - Unclear or potentially approximate conclusion
+        - Different result on another The Sims 4 version
+        - PRECOMP / binary template issue
+        - VFX / SWARM research issue
+        - Renderer / shader / geometry research issue
+        - Broken link or documentation formatting issue
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: affected-resource
+    attributes:
+      label: Affected document, template, or resource
+      description: |
+        Give the file path, documentation section, template name, VFX effect name,
+        resource TGI, or other identifier that lets us find the exact item.
+      placeholder: "Example: modding-resources/vfx/RENDERER_REFERENCE.md — Model Particle instanced"
+    validations:
+      required: true
+
+  - type: input
+    id: game-version
+    attributes:
+      label: The Sims 4 version
+      description: Enter the game version used for your test, if applicable.
+      placeholder: "Example: 1.xx.xxx.xxxx"
+    validations:
+      required: true
+
+  - type: textarea
+    id: documented-result
+    attributes:
+      label: What does the documentation currently say?
+      description: |
+        Quote only the relevant short statement, or summarize the claim and identify where it appears.
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed-result
+    attributes:
+      label: What did you observe instead?
+      description: |
+        Explain the conflicting result, suspected error, ambiguity, or missing detail as precisely as possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How can we reproduce or verify it?
+      description: |
+        Include the effect/resource tested, steps, relevant game file, PRECOMP hash,
+        RenderDoc capture details, binary offsets, logs, screenshots, or other evidence when applicable.
+      placeholder: |
+        Effect/resource:
+        Steps:
+        Relevant file/resource:
+        Relevant offsets or IDs:
+        Additional evidence:
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: |
+        Add anything else that may help distinguish a documentation problem from a
+        game-version difference, unsupported case, or different runtime path.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Final checks
+      options:
+        - label: I checked the documented research fixture/game version when it is relevant to this report.
+          required: true
+        - label: I have identified the specific document, template, effect, or resource involved.
+          required: true
+        - label: This report does not contain passwords, tokens, private keys, personal information, or private repository information.
+          required: true
