@@ -30,6 +30,7 @@ Each ZIP is self-contained and contains one top-level directory with the same da
 
 ```text
 Demeterio_TS4AnimationBrowser_ModdingResources_YYYY-MM-DD/
+├─ _HOW_TO_OPEN_MARKDOWN_ON_WINDOWS.txt
 ├─ README.md
 ├─ BEGINNER_GUIDE.md
 ├─ GAME_VERSION.md
