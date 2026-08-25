@@ -1,0 +1,139 @@
+//------------------------------------------------
+// The Sims 4 - Shaders_Win32.precomp
+// 010 Editor Binary Template
+// Current SPKG v2 validated-prefix template
+// Last updated: 2026-08-22
+//
+// Copyright (c) 2026 Demeterio
+// https://demeterio.tumblr.com/tutorials-and-resources-for-modders-in-sims-4
+//
+// Independent fan-made modding/research resource. Not affiliated with,
+// endorsed by, or sponsored by Electronic Arts or Maxis. The Sims, The Sims 4,
+// Maxis, Electronic Arts, and related properties belong to their respective
+// rights holders. No game assets or shader bytecode are distributed here.
+//
+// This file intentionally parses only the portions mechanically revalidated
+// against the observed Version 2 Win32 PRECOMP. Unknown values remain UNKNOWN.
+// The historical TECH/PASS render recipe is useful reference material, but its
+// byte layout below the current SMDB boundary is not assumed to be unchanged.
+//
+// Naming boundary:
+// - PlatformShader / IsPixelShader / ShaderPlatformMask / ShaderSize /
+//   ByteCodeSize / ByteCode occur in preserved first-party Version 1 material,
+//   while the Version 2 layout/mechanics shown here are independently validated.
+// - Current SPAR records are proven 0x08-byte records, but older member
+//   semantics are not transplanted: Word0/Word1 stay unknown.
+// - Historical TECH/PASS/PARM names below SMDB remain historical evidence only
+//   until the Version 2 tail is independently revalidated.
+//
+// Validated fixture: The Sims 4 PC 1.126.73.1030.
+//
+// Validated prefix:
+//   SPKG -> SHDB -> LINK -> PlatformShader[] -> DBUF -> SPAR -> SMDB
+//
+// Observed population in the validated file:
+//   7,521 VS / 20,373 PS / 27,894 total
+//
+// Do not copy DX11 DATA/v6 discoveries into this SPKG/v2 layout unless the
+// Win32 file independently proves the same structure or semantic.
+//------------------------------------------------
+
+LittleEndian();
+
+typedef struct
+{
+    uchar IsPixelShader;
+    uint16 ShaderPlatformMask;
+    uint32 ShaderSize;
+    char ShaderTag[4];
+    uint32 ByteCodeSize;
+    uchar ByteCode[ByteCodeSize];
+} PlatformShader;
+
+typedef struct
+{
+    uint32 Word0; // current SPAR record semantics not yet renamed
+    uint32 Word1; // current SPAR record semantics not yet renamed
+} ShaderParameterRecord; // maintained structural name for the current 0x08-byte SPAR record
+
+char HeaderTag[4];
+uint32 Version;
+char ShaderDbTag[4];
+uint32 ShaderDbSize;
+char LinkTag[4];
+uint32 PlatformShaderCount;
+
+// Four-byte file tags are compared bytewise so validation does not depend on
+// a C-style null terminator after the fixed-size field.
+if (HeaderTag[0] != 'S' || HeaderTag[1] != 'P' || HeaderTag[2] != 'K' || HeaderTag[3] != 'G')
+{
+    Warning("Expected SPKG at file start.");
+    return -1;
+}
+
+if (Version != 2)
+    Warning("This publication template is bounded to the observed SPKG Version 2 file.");
+
+if (ShaderDbTag[0] != 'S' || ShaderDbTag[1] != 'H' || ShaderDbTag[2] != 'D' || ShaderDbTag[3] != 'B')
+    Warning("Expected SHDB at +0x08.");
+
+if (LinkTag[0] != 'L' || LinkTag[1] != 'I' || LinkTag[2] != 'N' || LinkTag[3] != 'K')
+    Warning("Expected LINK at +0x10.");
+
+// Records are variable-sized because ByteCodeSize controls ByteCode[].
+PlatformShader PlatformShaders[PlatformShaderCount] <optimize=false>;
+
+char DefaultBufferTag[4];
+uint32 DefaultsSize;
+
+if (DefaultBufferTag[0] != 'D' || DefaultBufferTag[1] != 'B' || DefaultBufferTag[2] != 'U' || DefaultBufferTag[3] != 'F')
+{
+    Warning("Expected DBUF after PlatformShader[].");
+    return -1;
+}
+
+uint32 DefaultData[DefaultsSize];
+
+char ShaderParameterTag[4];
+uint32 ShaderParameterCount;
+
+if (ShaderParameterTag[0] != 'S' || ShaderParameterTag[1] != 'P' || ShaderParameterTag[2] != 'A' || ShaderParameterTag[3] != 'R')
+{
+    Warning("Expected SPAR after DBUF.");
+    return -1;
+}
+
+ShaderParameterRecord ShaderParameters[ShaderParameterCount];
+
+char ShaderModelDatabaseTag[4];
+
+if (ShaderModelDatabaseTag[0] != 'S' || ShaderModelDatabaseTag[1] != 'M' || ShaderModelDatabaseTag[2] != 'D' || ShaderModelDatabaseTag[3] != 'B')
+    Warning("Current validated prefix expected SMDB after SPAR.");
+
+// ----------------------------------------------------------------------
+// Current validation boundary
+// ----------------------------------------------------------------------
+//
+// The historical Sims 4 Win32 template documents a render database below
+// this point with structures/tags including:
+//
+//   SETS / SSET
+//   SHDS / SBLK / Shader
+//   TECH
+//   PASS
+//   PARM
+//   KNM
+//   END
+//
+// Historical PASS records describe a render recipe around vertex/pixel
+// shaders, parameters, render states, samplers and dynamic state. This is a
+// useful historical reference only; it is not proof that the Version 2 SMDB
+// tail is byte-identical.
+//
+// This current template is deliberately bounded to:
+//
+//   SPKG -> SHDB -> LINK -> PlatformShader[] -> DBUF -> SPAR -> SMDB
+//
+// Do not promote the historical TECH/PASS/PARM byte layout into this file
+// until the Version 2 SMDB tail is mechanically revalidated.
+// ----------------------------------------------------------------------

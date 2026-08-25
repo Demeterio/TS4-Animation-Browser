@@ -1,0 +1,303 @@
+//------------------------------------------------
+// The Sims 4 - Shaders_DX11.precomp
+// 010 Editor Binary Template
+// Last updated: 2026-08-22
+//
+// Copyright (c) 2026 Demeterio
+// https://demeterio.tumblr.com/tutorials-and-resources-for-modders-in-sims-4
+//
+// Independent fan-made modding/research resource. Not affiliated with,
+// endorsed by, or sponsored by Electronic Arts or Maxis. The Sims, The Sims 4,
+// Maxis, Electronic Arts, and related properties belong to their respective
+// rights holders. No game assets or shader bytecode are distributed here.
+//
+// This template names only fields whose layout or dataflow is established by
+// the validated current bytes/loader/renderer path. Unknown values intentionally
+// remain UNKNOWN rather than being assigned guessed business names.
+//
+// Naming boundary:
+// - Dx11EffectRecord / Effect is a maintained structural label for the proven
+//   current outer record; it is not asserted as the stripped current EA type.
+// - Technique / Pass describe the independently proven current hierarchy and
+//   also occur in preserved first-party historical PRECOMP vocabulary.
+// - VSRef / PSRef / CSRef / StateStart / StateCount are descriptive current
+//   dataflow labels, not claims about recovered private member names.
+// - ShaderPreparation* is structural/descriptive; internal fields stay raw or
+//   unknown until independently established.
+//
+// Validated fixture: The Sims 4 PC 1.126.73.1030.
+//
+// Validated DX11 corpus:
+// - 37,960 compact l_shaders streams are proven Raw Snappy -> DXBC.
+// - Stage counts: 7,947 VS / 30,009 PS / 4 CS.
+// - Source-record +0x00 -> physical compact stream is structurally/dataflow
+//   proven for 7,947/7,947 VS, 30,009/30,009 PS and 4/4 CS records.
+// - Pass shader references are 1-based within their stage table; 0 = absent.
+// - Do not model the compact streams as a speculative fixed DXBC envelope.
+//------------------------------------------------
+
+LittleEndian();
+
+local int SELECT_EFFECT = 0; // set to -1 to disable the selected effect-like record view
+local int SELECT_TECHNIQUE = 0;
+
+int64 RelativeTarget(int64 fieldOffset, int32 relative)
+{
+    if (relative == -2147483648)
+        return -1;
+    return fieldOffset + relative;
+}
+
+typedef struct
+{
+    uint32 Word0; // UNKNOWN
+    uint32 Word1; // UNKNOWN
+    uint32 Word2; // UNKNOWN
+    uint32 Word3; // UNKNOWN
+    uint32 Word4; // UNKNOWN
+    uint32 Word5; // observed absolute file-region start in current descriptors
+    uint32 Word6; // UNKNOWN
+} DataDescriptor;
+
+typedef struct
+{
+    int32 NameRelative;
+    uint32 Unknown04;
+    uint32 Unknown08;
+    uint32 Unknown0C;
+    uint32 Unknown10;
+    int32 PayloadRelative;
+} DataRootEntry;
+
+typedef struct
+{
+    uint32 Field00; // strongly correlated with known MATD Shader hashes; not renamed
+    uint32 Unknown04;
+    uint32 Unknown08;
+    uint32 Unknown0C;
+    uint32 Unknown10;
+    int32 TechniquesRelative;
+    uint32 TechniqueCount;
+} Dx11EffectRecord; // maintained structural name; current EA private type name unknown
+
+typedef struct
+{
+    uint32 Unknown00;
+    int32 PassesRelative;
+    uint32 PassCount;
+} Dx11Technique;
+
+typedef struct
+{
+    uint32 VSRef;           // 1-based, 0 = absent; current dataflow role proven
+    uint32 PSRef;           // 1-based, 0 = absent; current dataflow role proven
+    uint32 CSRef;           // 1-based, 0 = absent; current dataflow role proven
+    uint32 StateStart;      // current state-slice role proven; private member name unknown
+    uint32 StateCount;      // current state-slice role proven; private member name unknown
+    int32 OptionalRelative; // INT_MIN = absent; target semantics UNKNOWN
+} Dx11Pass;
+
+typedef struct
+{
+    uint32 StateId; // descriptive state-pair word label; exact private business name unknown
+    uint32 Value;   // descriptive state-pair value label; exact private business name unknown
+} Dx11StatePair;
+
+typedef struct
+{
+    uchar Raw[0x34]; // source VS record; internal fields still intentionally unnamed
+} Dx11VertexShaderSourceRecord;
+
+typedef struct
+{
+    uchar Raw[0x2C]; // source PS record; internal fields still intentionally unnamed
+} Dx11PixelShaderSourceRecord;
+
+typedef struct
+{
+    uchar Raw[0x2C]; // source CS record; internal fields still intentionally unnamed
+} Dx11ComputeShaderSourceRecord;
+
+typedef struct
+{
+    uchar Raw[0x1C]; // structural/descriptive name; internal fields remain UNKNOWN
+} Dx11ShaderPreparationRecord;
+
+// DATA header
+char Magic[4];
+uint32 DataUnknown04;
+int32 RootEntryRelative;
+uint32 DescriptorCount;
+uint32 DataUnknown10;
+uint32 DataUnknown14;
+uint32 DataUnknown18;
+uint32 DataUnknown1C;
+
+// Four-byte file tags are compared bytewise so validation does not depend on
+// a C-style null terminator after the fixed-size field.
+if (Magic[0] != 'D' || Magic[1] != 'A' || Magic[2] != 'T' || Magic[3] != 'A')
+{
+    Warning("Expected DATA at file start.");
+    return -1;
+}
+
+DataDescriptor Descriptors[DescriptorCount];
+
+local int64 afterDescriptors = FTell();
+local int64 rootEntryOffset = RelativeTarget(0x08, RootEntryRelative);
+
+if (rootEntryOffset < 0 || rootEntryOffset >= FileSize())
+{
+    Warning("DATA root entry relative pointer is outside the file.");
+    return -1;
+}
+
+FSeek(rootEntryOffset);
+DataRootEntry RootEntry;
+
+local int64 rootNameOffset = RelativeTarget(rootEntryOffset + 0x00, RootEntry.NameRelative);
+local int64 payloadOffset = RelativeTarget(rootEntryOffset + 0x14, RootEntry.PayloadRelative);
+
+if (rootNameOffset >= 0 && rootNameOffset < FileSize())
+{
+    FSeek(rootNameOffset);
+    string RootName;
+}
+
+if (payloadOffset < 0 || payloadOffset + 0x64 > FileSize())
+{
+    Warning("shaders payload pointer is outside the file.");
+    return -1;
+}
+
+FSeek(payloadOffset);
+uint32 PayloadVersion;
+int32 EffectsRelative; // maintained structural label: effect-like outer record table
+uint32 EffectCount;     // count of the proven outer record table; private EA member name unknown
+uint32 PayloadUnknown0C;
+uint32 PayloadUnknown10;
+int32 VSRelative;
+uint32 VSCount;
+int32 PSRelative;
+uint32 PSCount;
+int32 CSRelative;
+uint32 CSCount;
+uint32 PayloadUnknown2C;
+uint32 PayloadUnknown30;
+uint32 PayloadUnknown34;
+uint32 PayloadUnknown38;
+uint32 PayloadUnknown3C;
+uint32 PayloadUnknown40;
+uint32 PayloadUnknown44;
+uint32 PayloadUnknown48;
+int32 StatePairsRelative;
+uint32 StatePairBoundRaw;
+int32 ShaderPreparationRelative;
+uint32 ShaderPreparationCount;
+uint32 PayloadUnknown5C;
+uint32 PayloadUnknown60;
+
+if (PayloadVersion != 6)
+    Warning("Observed EA DX11 loader expects shaders payload version 6.");
+
+local int64 effectBase = RelativeTarget(payloadOffset + 0x04, EffectsRelative);
+local int64 vsBase = RelativeTarget(payloadOffset + 0x14, VSRelative);
+local int64 psBase = RelativeTarget(payloadOffset + 0x1C, PSRelative);
+local int64 csBase = RelativeTarget(payloadOffset + 0x24, CSRelative);
+local int64 stateBase = RelativeTarget(payloadOffset + 0x4C, StatePairsRelative);
+local int64 shaderPreparationBase = RelativeTarget(payloadOffset + 0x54, ShaderPreparationRelative);
+
+if (effectBase >= 0 && EffectCount > 0)
+{
+    FSeek(effectBase);
+    Dx11EffectRecord Effects[EffectCount];
+}
+
+if (vsBase >= 0 && VSCount > 0)
+{
+    FSeek(vsBase);
+    Dx11VertexShaderSourceRecord VertexShaderSourceRecords[VSCount];
+}
+
+if (psBase >= 0 && PSCount > 0)
+{
+    FSeek(psBase);
+    Dx11PixelShaderSourceRecord PixelShaderSourceRecords[PSCount];
+}
+
+if (csBase >= 0 && CSCount > 0)
+{
+    FSeek(csBase);
+    Dx11ComputeShaderSourceRecord ComputeShaderSourceRecords[CSCount];
+}
+
+if (shaderPreparationBase >= 0 && ShaderPreparationCount > 0)
+{
+    FSeek(shaderPreparationBase);
+    Dx11ShaderPreparationRecord ShaderPreparationRecords[ShaderPreparationCount];
+}
+
+// payload+0x50 is known to bound every referenced state slice in the
+// validated corpus. Its formal semantic name is deliberately unresolved.
+if (stateBase >= 0 && StatePairBoundRaw > 0)
+{
+    FSeek(stateBase);
+    Dx11StatePair StatePairs[StatePairBoundRaw];
+}
+
+// Selected outer-record/technique/pass view. This follows the relative-pointer
+// rule observed in the EA loader/pass path.
+if (SELECT_EFFECT >= 0 && SELECT_EFFECT < EffectCount && effectBase >= 0)
+{
+    local int64 selectedEffectOffset = effectBase + SELECT_EFFECT * 0x1C;
+    FSeek(selectedEffectOffset);
+    Dx11EffectRecord SelectedEffect;
+
+    local int64 selectedTechniqueBase = RelativeTarget(selectedEffectOffset + 0x14, SelectedEffect.TechniquesRelative);
+    if (selectedTechniqueBase >= 0 && SelectedEffect.TechniqueCount > 0)
+    {
+        FSeek(selectedTechniqueBase);
+        Dx11Technique SelectedEffectTechniques[SelectedEffect.TechniqueCount];
+
+        if (SELECT_TECHNIQUE >= 0 && SELECT_TECHNIQUE < SelectedEffect.TechniqueCount)
+        {
+            local int64 selectedTechniqueOffset = selectedTechniqueBase + SELECT_TECHNIQUE * 0x0C;
+            FSeek(selectedTechniqueOffset);
+            Dx11Technique SelectedTechnique;
+
+            local int64 selectedPassBase = RelativeTarget(selectedTechniqueOffset + 0x04, SelectedTechnique.PassesRelative);
+            if (selectedPassBase >= 0 && SelectedTechnique.PassCount > 0)
+            {
+                FSeek(selectedPassBase);
+                Dx11Pass SelectedPasses[SelectedTechnique.PassCount];
+            }
+        }
+    }
+}
+
+// DATAFLOW / STRUCTURE PROVEN:
+//   VSRef N -> stage VS record [N - 1]
+//   PSRef N -> stage PS record [N - 1]
+//   CSRef N -> stage CS record [N - 1]
+//
+// Compact l_shaders global ordering in the validated fixture:
+//   globals 0..7946      = VS
+//   globals 7947..37955  = PS
+//   globals 37956..37959 = CS
+//
+// Source-record +0x00 resolves to the exact physical Raw Snappy stream for
+// every recovered record in all three stage tables:
+//   VS 7,947 / 7,947
+//   PS 30,009 / 30,009
+//   CS 4 / 4
+//
+// The older ordinal conversion therefore matches the now-proven physical
+// ordering, but table order is not used as the proof:
+//   VSRef N -> global N - 1
+//   PSRef N -> global 7947 + N - 1
+//   CSRef N -> global 37956 + N - 1
+//
+// No stripped EA private member name is asserted for source-record +0x00.
+// Compact streams are intentionally not expanded by this inspection template.
+
+FSeek(afterDescriptors);

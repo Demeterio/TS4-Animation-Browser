@@ -1,0 +1,86 @@
+HOW TO OPEN .MD (MARKDOWN) FILES ON WINDOWS
+==================================================================
+
+A .md file is a plain-text Markdown document. You do not need
+special software just to read its contents.
+
+WITHOUT INSTALLING THIRD-PARTY SOFTWARE
+------------------------------------------------------------------
+
+Option 1 - Windows Notepad
+
+1. Open File Explorer.
+2. Right-click the .md file.
+3. Choose "Open with".
+4. Choose "Notepad".
+
+You will see the Markdown source as normal text.
+Characters such as #, -, *, ``` and [link](...) are formatting
+instructions. Notepad does not render them as a formatted document,
+but all of the text remains readable.
+
+If Windows does not list Notepad immediately,
+choose "Choose another app" and select Notepad.
+
+Option 2 - Read it on GitHub
+
+If the file is part of a GitHub repository, open the file
+on the repository website. GitHub renders Markdown automatically
+with headings, tables, code blocks and links.
+
+This requires a web browser and an Internet connection,
+but no Markdown application needs to be installed.
+
+FREE AND OPEN-SOURCE SOFTWARE
+------------------------------------------------------------------
+
+MarkText
+
+MarkText is a free/open-source Markdown editor that shows
+a friendly rendered view while you edit or read the file.
+
+Project:
+https://github.com/marktext/marktext
+
+Basic use:
+1. Install MarkText.
+2. Right-click a .md file -> Open with -> MarkText.
+3. The Markdown is displayed in a formatted editor view.
+
+VSCodium
+
+VSCodium is a free/open-source build
+of the Visual Studio Code codebase. It includes Markdown editing
+and preview features.
+
+Project:
+https://github.com/VSCodium/vscodium
+
+Basic use:
+1. Install VSCodium.
+2. Open the .md file.
+3. Use the Markdown Preview command/button to display
+the rendered document.
+
+WHICH OPTION SHOULD I USE?
+------------------------------------------------------------------
+
+Just want to read the words quickly:
+  -> Windows Notepad.
+
+Want headings, tables and code blocks rendered nicely
+without installing anything extra:
+  -> Open the file on GitHub in your web browser.
+
+Want a free/open-source local Markdown reader/editor:
+  -> MarkText.
+
+Want a more complete code/text editor with Markdown preview:
+  -> VSCodium.
+
+IMPORTANT
+------------------------------------------------------------------
+
+Markdown files are plain text. Opening them cannot modify
+The Sims 4 or the PRECOMP files unless you deliberately edit/save
+something yourself.
