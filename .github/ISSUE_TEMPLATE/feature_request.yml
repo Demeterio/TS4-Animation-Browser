@@ -1,7 +1,8 @@
 name: Feature request
 description: Suggest a clear improvement for TS4 Animation Browser.
 title: "[Feature] "
-labels: []
+labels:
+  - feature
 assignees: []
 
 body:
