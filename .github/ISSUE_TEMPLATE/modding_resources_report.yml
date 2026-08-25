@@ -2,7 +2,7 @@ name: Modding resources / technical research
 description: Report an error, unclear claim, conflicting result, or compatibility issue in the modding resources and technical documentation.
 title: "[Modding resources] "
 labels:
-  - documentation
+  - modding-resources
 assignees: []
 
 body:
