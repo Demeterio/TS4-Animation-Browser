@@ -1,7 +1,8 @@
 name: Bug report
 description: Report a reproducible problem with TS4 Animation Browser.
 title: "[Bug] "
-labels: []
+labels:
+  - bug
 assignees: []
 
 body:
