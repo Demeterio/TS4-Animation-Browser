@@ -45,9 +45,10 @@ Recommended entry points:
 - `CHANGELOG.md` — project-wide change history for the public modding resources;
 - `archives/README.md` — dated ZIP snapshots, archive naming and publication history;
 - `precomp/README.md` — shader PRECOMP formats, `.bt`/`.hexpat` templates and validation boundaries;
+- `vfx/README.md` — VFX/SWARM documentation index and the main authored/runtime/renderer/PRECOMP separation rules;
 - `vfx/PACKAGE_TO_RENDER.md` — end-to-end VFX package -> runtime -> renderer -> PRECOMP -> D3D11 path;
 - `vfx/AUTHORED_FAMILIES.md` — validated authored VFX/SWARM family inventory and roles;
-- `vfx/TESTED_EFFECT_FIXTURES.md` — named VFX controls, captures and identity examples used as research anchors;
+- `vfx/TESTED_EFFECT_FIXTURES.md` — named VFX controls, captures, PRECOMP ownership boundaries and identity examples used as research anchors;
 - `precomp/guides/LABEL_PROVENANCE.md` — exact provenance/confidence rules for technical names.
 
 ## Current files and dated snapshots
@@ -60,7 +61,7 @@ Each published archive is self-contained and excludes older archives. See `archi
 
 ## One source of truth for the game version
 
-Do **not** copy the research game version, patch date or PRECOMP hashes into multiple documents.
+Do **not** copy the research game version, patch date, corpus populations or PRECOMP hashes into multiple documents.
 
 The canonical fixture reference is:
 
@@ -68,9 +69,11 @@ The canonical fixture reference is:
 GAME_VERSION.md
 ```
 
-Other documents may describe counts/layouts for the validated corpus, but should link to `GAME_VERSION.md` for the exact game build of The Sims 4, its patch date and the fixture fingerprints.
+Other documents should link to `GAME_VERSION.md` for values that change with the validated build or corpus. Durable guides may still contain structural constants that define a format or proven route, such as record sizes, field offsets, state IDs, vertex strides or exact conversion rules.
 
 Versioned template filenames and embedded fixture comments can retain the build they were authored/tested against; `GAME_VERSION.md` remains the canonical declaration for the documentation set. The exact rule is documented there.
+
+Build-specific statements in these resources refer to the **validated/documented fixture**, not automatically to the latest The Sims 4 patch available at the time you read the files. Wording such as “maintained” or “latest maintained” refers to this documentation set, while executable/PRECOMP/runtime claims remain scoped to the fixture named in `GAME_VERSION.md` unless a page explicitly establishes another build.
 
 ## The most important distinction
 
@@ -89,13 +92,16 @@ runtime effect/simulation/orchestration
 renderer family or non-GPU endpoint
         |
         v
-model/material/texture/shader resource resolution
+model/geometry/material/texture resource resolution
+        |
+        v
+runtime PRECOMP context + selector selection when applicable
         |
         v
 PRECOMP Effect-like record -> Technique -> Pass
         |
         v
-VS / PS / CS
+VS / PS / CS + serialized render-state slice
         |
         v
 D3D11 bindings and draw/dispatch
@@ -110,6 +116,8 @@ authored SWARM family != CPU simulation path != GPU renderer family != shader
 ```
 
 A `SoundEffect` can be part of a VFX without creating geometry. A `SequenceEffect` can orchestrate children. A `RibbonEffect` is not automatically one specific GPU renderer. `Model Particle` is an observed renderer behavior and is **not** the same thing as the authored `ModelEffect` family.
+
+The PRECOMP layer is not a one-to-one identity table for named VFX. Depending on the authored branches and runtime route, a named effect can reach no PRECOMP selection, one selection in a bounded scope, or several selections; different effects can also share the same PRECOMP context/record. A structurally valid PRECOMP record therefore does not establish exclusive ownership by an effect name.
 
 ## Validated VFX resource topology
 
@@ -139,7 +147,7 @@ vfx/RESOURCE_TOPOLOGY.md
 
 ## PRECOMP in one paragraph
 
-`Shaders_DX11.precomp` is the modern Direct3D 11 shader package studied here. The validated route is:
+`Shaders_DX11.precomp` is the Direct3D 11 shader package studied for the documented fixture. The validated structural route is:
 
 ```text
 DATA / shaders payload v6
@@ -162,17 +170,17 @@ EA .precomp file = installed game data used by the game
 010 Editor/ImHex = external inspection tools
 ```
 
-Exact shader counts and PRECOMP fingerprints belong in `GAME_VERSION.md`.
+Exact shader counts, corpus populations, closure metrics and PRECOMP fingerprints belong in `GAME_VERSION.md`.
 
 ## Evidence and naming policy
 
 The documentation follows a conservative evidence hierarchy:
 
-- **EA_NAME_PROVEN** — exact current first-party identity attached to the relevant object/resource/field;
+- **EA_NAME_PROVEN** — exact first-party identity from the documented scope is attached to the relevant object/resource/field;
 - **DATAFLOW_PROVEN** — producer/storage/consumer relationship establishes the role;
 - **PHYSICAL_SEMANTIC_PROVEN** — GPU input, format, stride, shader consumption or another physical behavior establishes the role;
-- **historical first-party** — useful EA/Maxis vocabulary from an older representation, not automatically current;
-- **historical/community** — useful comparison material, never current proof by itself;
+- **historical first-party** — useful EA/Maxis vocabulary from an older representation, not automatically valid for the documented representation;
+- **historical/community** — useful comparison material, never proof for the documented representation by itself;
 - **project structural/descriptive** — useful name for a proven structure whose stripped EA private name is not known;
 - **UNKNOWN_BOUNDED** — mechanics are constrained but the exact private name/finer meaning is not proven.
 
@@ -180,7 +188,7 @@ The beginner-friendly explanation of *why behavior can be proven while original 
 
 ## Historical and third-party material
 
-Historical templates and community references are kept separately from maintained current material. Their original attribution is preserved wherever known.
+Historical templates and community references are kept separately from maintained validated material. Their original attribution is preserved wherever known.
 
 They are valuable for vocabulary and comparison, but an old field name does not prove that a newer game format retained the same layout or semantics.
 

@@ -74,7 +74,7 @@ https://github.com/WerWolv/ImHex/releases
 
 Use the normal Windows-x86_64.msi installer/package appropriate for your system.
 
-Windows installers may not be signed. As with any development tool, obtain ImHex from the official project/release page rather than from an unrelated download mirror.
+At the time this documentation was prepared, the official ImHex `v1.38.1` release notes state that the Windows installers are signed. Obtain ImHex from the official project/release page rather than from an unrelated download mirror.
 
 After installation, launch ImHex normally. You do not need to copy these patterns into the ImHex installation directory to perform the basic manual workflow below.
 
@@ -131,6 +131,8 @@ The historical Version 1 `TECH/PASS/PARM` tail is not imported into the validate
 Both maintained `.hexpat` files were manually executed in **ImHex** against the fixture identified in `../../../GAME_VERSION.md`.
 
 This is an actual Pattern Language runtime test, not only a syntax review against the ImHex documentation.
+
+The exact values below are retained as results of that editor/template validation snapshot. `../../../GAME_VERSION.md` remains the canonical source for the current documentation-wide corpus populations.
 
 ### DX11 runtime result
 
@@ -426,9 +428,9 @@ The project already validated the complete compact shader corpus with dedicated 
 
 ```text
 37,960 / 37,960 compact streams reconstructed
-7,947 VS
-30,009 PS
-4 CS
+7,947           VS
+30,009          PS
+4               CS
 ```
 
 The validated route is:

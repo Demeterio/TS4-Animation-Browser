@@ -2,11 +2,13 @@
 
 This guide is for The Sims 4 modders who are curious about VFX/shader resources but do not already work with binary formats, native executables or Direct3D.
 
-For the exact game build of The Sims 4, patch date and PRECOMP fingerprints used by the maintained documentation, always see:
+For the exact game build of The Sims 4, patch date, corpus anchors and binary fingerprints used by the maintained documentation, always see:
 
 ```text
 GAME_VERSION.md
 ```
+
+Build-specific facts below refer to that **validated/documented fixture**. They do not automatically describe the latest The Sims 4 patch available when you read this guide.
 
 ## The five things to keep separate
 
@@ -105,6 +107,8 @@ Examples:
 
 The Sims 4 stores resources in DBPF `.package` files.
 
+DBPF packages contain many kinds of resources. A resource is identified by its Type, Group and Instance values, often shortened to **TGI**.
+
 The validated VFX library uses three related resource types:
 
 ```text
@@ -169,7 +173,7 @@ A shader is only one piece of rendering. The final draw can also need geometry, 
 | --- | --- |
 | CPU | processor code that loads resources, runs simulation and prepares renderer work |
 | GPU | graphics processor that executes shaders and rendering work |
-| vertex | one geometry input record |
+| vertex | one geometry input record, usually carrying position and other attributes |
 | vertex buffer | GPU buffer containing vertex records |
 | index | number selecting a vertex; lets triangles reuse vertices |
 | index buffer | GPU buffer containing indices |
@@ -186,11 +190,11 @@ A D3D semantic describes the shader interface. It does not automatically reveal 
 
 ## What is PRECOMP?
 
-PRECOMP means **precompiled** in this context.
+In these documents, **PRECOMP** refers to EA's packaged compiled/precompiled shader data and related lookup/pass structures. The documentation does not claim that `PRECOMP` is a recovered official long-form EA expansion.
 
 The game ships compiled shader programs and related lookup/pass data rather than compiling every shader permutation from source during ordinary gameplay.
 
-The modern file studied here is:
+The DX11 file studied for the documented fixture is:
 
 ```text
 The Sims 4\Game\Bin\res\Shaders_DX11.precomp
@@ -217,6 +221,41 @@ A Pass chooses shader stages using 1-based references:
 ...
 ```
 
+The outer `Effect` / `Dx11EffectRecord` wording used in these documents is a structural project label. The exact private EA C++ name of that stripped outer type is not claimed.
+
+## Does one VFX equal one PRECOMP record?
+
+No. A named VFX and a PRECOMP outer record are different kinds of identity.
+
+The safe model is:
+
+```text
+named VFX / authored graph
+-> runtime branches and renderer routes
+-> PRECOMP context + selector selection when applicable
+-> PRECOMP outer record / Technique / Pass
+```
+
+Depending on the effect and runtime route, a named VFX can:
+
+```text
+reach no PRECOMP selection
+reach one bounded PRECOMP selection
+reach several PRECOMP selections across branches/routes
+share a PRECOMP context or record with other effects
+```
+
+For example, one authored VFX can contain a visual child that reaches PRECOMP, another visual branch that selects a different route, and a `SoundEffect` branch that reaches no GPU shader at all.
+
+So:
+
+```text
+PRECOMP-compatible shader/pass
+!= exclusive ownership by a named effect
+```
+
+Structural PRECOMP decoding tells us what records, techniques and passes exist. Exact named-effect attribution requires separate runtime/dataflow evidence.
+
 ## Snappy, Raw Snappy and DXBC
 
 These are different layers:
@@ -242,6 +281,37 @@ D3D11 shader creation/use
 In the validated DX11 PRECOMP, the compact shader streams are Raw Snappy data and the decompressed payload is a standard **DXBC** compiled shader container.
 
 The exact shader population and file fingerprints are centralized in `GAME_VERSION.md`.
+
+## What are PRECOMP render states?
+
+A shader does not define every part of a D3D11 draw. A Pass also selects a slice of serialized render-state pairs:
+
+```text
+Pass
+-> StateStart / StateCount
+-> {stateId, rawValue}
+-> common EA state consumer
+-> D3D11 depth/stencil, rasterizer and blend state
+```
+
+The common consumer recovered from the validated executable mechanically explains state IDs `0x00..0x1E`. This mapping comes from validated runtime dataflow into D3D11 state structures, not from guessing what a few RenderDoc values appear to mean.
+
+Examples of proven destinations include:
+
+```text
+depth enable / write / comparison
+stencil enable / masks / operations
+rasterizer fill / cull / scissor / depth bias
+render-target blend factors / operations / write mask
+```
+
+One important naming boundary remains: state `0x1B` has an exact descriptor transformation, but its original private conceptual EA name has not been recovered. The documentation therefore keeps a structural name rather than inventing a friendly one.
+
+Detailed state-ID/value mechanics are in:
+
+```text
+precomp/guides/FORMAT_REFERENCE.md
+```
 
 ## What is Direct3D 11?
 
@@ -276,8 +346,9 @@ DBPF package
   -> simulation or side-effect endpoint
   -> renderer family if graphics are required
   -> model/geometry/material/texture resolution
-  -> PRECOMP Technique / Pass
-  -> VS / PS / CS
+  -> runtime PRECOMP context + selector selection when applicable
+  -> PRECOMP outer record -> Technique -> Pass
+  -> VS / PS / CS + render-state slice
   -> D3D11 buffers/resources/state
   -> draw
 ```
@@ -295,12 +366,13 @@ Some particle data can render actual model geometry.
 The validated bounded route includes:
 
 ```text
-MODL
-  -> MLOD
-    -> materialReference
-    -> VRTF vertex format reference
-    -> VBUF vertex data
-    -> IBUF index data
+Particle model reference
+  -> MODL
+    -> MLOD
+      -> materialReference
+      -> VRTF vertex format reference
+      -> VBUF vertex data
+      -> IBUF index data
 ```
 
 The exact bounded renderer facts are documented in:
@@ -317,11 +389,33 @@ Again:
 Model Particle renderer != authored ModelEffect family
 ```
 
+## Materials, MATD and MTST
+
+Model geometry can reference a material directly or through a material-set resource.
+
+The maintained resource graph distinguishes:
+
+```text
+mesh materialReference
+-> MATD directly
+
+or
+
+mesh materialReference
+-> MTST
+-> one or more serialized MTST entries
+-> MATD leaves
+```
+
+A faithful parser must retain the serialized MTST entries instead of silently choosing whichever variant looks convenient. The documented fixture populations for direct MATD routes, MTST routes and material leaves are centralized in `GAME_VERSION.md`.
+
+Material data can then contain ShaderData fields and resource keys for textures or other resources. Missing references remain explicit source-data outcomes; they are not silently replaced with a guessed texture.
+
 ## Materials and PRECOMP
 
 A material/resource path helps select shaders, textures and state, but not every private material field name has been recovered for the validated representation.
 
-One example is the first field of the modern DX11 outer effect-like record: it is strongly correlated with known MATD Shader hashes, but the maintained template does **not** rename it as a proven MATD field because the exact semantic attachment is not strong enough for that claim.
+One example is the first field of the validated DX11 outer effect-like record: it is strongly correlated with known MATD Shader hashes, including an exact equality on a maintained fixture, but the maintained template does **not** rename it as a proven MATD field because a universal causal selector relationship has not been established.
 
 This is intentional. A technically useful tool can preserve exact numeric/resource identities without pretending every private name is known.
 
@@ -389,9 +483,11 @@ Examples recovered during this research include names such as:
 ```text
 EA::Swarm::cParticlesEffect
 EA::Swarm::cParticlesDescription
+EA::Swarm::cRibbonDescription
 EA::Swarm::cRibbonEffect
 EA::Swarm::cSequenceEffect
 EA::Swarm::cBeamEffect
+EA::Swarm::cGameEffect
 ```
 
 When an RTTI identity is correctly attached to the object being analyzed, it gives us strong first-party naming evidence. We can then describe an offset relative to the proven class instead of only saying “unknown object”.
@@ -430,7 +526,24 @@ That is much stronger than guessing from a value that merely “looks like” vo
 
 Sometimes a field itself has no surviving member name, but a proven surrounding type, parser or command class gives semantic context.
 
-The safe rule is that the name must be **actually attached by evidence** to the path being described. A hypothetical name such as `cRibbonWidthCommand` must never be published as an EA identity merely because it sounds plausible.
+First-party examples recovered and correctly attached in the validated executable include names such as:
+
+```text
+cParticleAlignmentCommand
+cParticlePhysicsCommand
+cMetaParticleDirectedWalkCommand
+cShakeAmplitudeCommand
+cShakeFrequencyCommand
+cDistributeSourceCommand
+cRibbonWidthCommand
+cRibbonTaperCommand
+cRibbonSlipCurveCommand
+cDecalMapEmitColorCommand
+```
+
+The safe rule is that the name must be **actually attached by evidence** to the path being described. A plausible command name must never be published as an EA identity merely because it sounds right.
+
+Even a real command-class name does not automatically reveal the private member name or enum spelling of every value it touches. For example, a proven alignment command does not by itself recover private symbolic names for every serialized alignment value.
 
 ## 4. Sometimes only the behavior survives
 
@@ -447,7 +560,7 @@ while the original EA enum/member name remains unavailable.
 The correct documentation style is then:
 
 ```text
-mechanical behavior: PROVEN
+mechanical behavior:       PROVEN
 original EA semantic name: UNKNOWN
 ```
 
@@ -502,6 +615,8 @@ They effectively mean:
 there is a function at/around this address,
 but Ghidra does not know its original source name
 ```
+
+The numeric address portion is also **build-specific**. A `FUN_...` label or RVA used as evidence for the documented executable must not be treated as a stable API or assumed to identify the same function after a game update.
 
 A research project may later assign a descriptive label after proving the function's role. That descriptive label still must not be presented as the original EA C++ identifier unless independent first-party evidence establishes it.
 
@@ -572,14 +687,7 @@ Neither proven
 -> keep it unknown
 ```
 
-Something can therefore be:
-
-```text
-Mechanically understood:  100%
-Original EA naming:       unknown
-```
-
-and still be perfectly usable for reproducing the effect.
+Something can therefore be mechanically understood while its original private naming remains unknown and still be perfectly usable for reproducing the effect.
 
 The priority is reproducing the real behavior, not guessing what EA's private developers happened to call every field, enum, function or interface.
 
@@ -656,7 +764,7 @@ precomp/guides/LEGACY_TEMPLATES.md
 4. Open the copied `.precomp`.
 5. Run the matching maintained `.bt` or `.hexpat`.
 6. Expand the exposed `DATA` / `shaders` structures.
-7. Compare reported structure/counts with `precomp/guides/FORMAT_REFERENCE.md`.
+7. Compare build-specific populations with `GAME_VERSION.md` and structural details with `precomp/guides/FORMAT_REFERENCE.md`.
 8. If your hash differs, treat it as a compatibility check rather than weakening warnings immediately.
 
 ---
@@ -682,6 +790,8 @@ Possibly. A changed hash means the bytes differ from the exact validated fixture
 ## Does “mechanically closed” mean every EA name is known?
 
 No. It means the required storage/dataflow/endpoint transitions for the stated scope are bounded, with remaining private semantic unknowns explicitly classified rather than hidden.
+
+Build-specific closure metrics belong in `GAME_VERSION.md`; they are not duplicated here.
 
 ## Where do I go next?
 

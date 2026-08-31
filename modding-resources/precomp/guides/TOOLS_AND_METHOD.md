@@ -4,6 +4,12 @@ The maintained PRECOMP/VFX documentation was built by checking the same pipeline
 
 No single third-party tool is treated as the source of truth. Current installed game bytes and current EA runtime behavior have priority.
 
+For the exact build, fingerprints and build-specific corpus populations, use:
+
+```text
+../../GAME_VERSION.md
+```
+
 For the exact naming/confidence policy, read:
 
 ```text
@@ -39,7 +45,7 @@ Conversely, the lack of an original private field name does not erase a mechanic
 
 Used for manual binary inspection and for the distributable `.bt` Binary Templates in this resource set.
 
-010 Editor is useful for exploring structured bytes interactively. Corpus-wide proof such as validating tens of thousands of shaders is better handled by dedicated tooling rather than manual navigation.
+010 Editor is useful for exploring structured bytes interactively. Corpus-wide proof such as validating a full shader table is better handled by dedicated tooling rather than manual navigation.
 
 ### ImHex
 
@@ -65,7 +71,7 @@ https://sims4studio.com/post/43316
 
 Used for bounded static analysis of known loader, VFX and renderer targets.
 
-The later research passes deliberately followed specific xrefs/dataflow questions instead of broad decompilation. This was particularly useful for closing current SWARM factories/runtime ownership and the `.swb/.swb2/.swh2` resource-selection path.
+Later research passes deliberately followed specific xrefs/dataflow questions instead of broad decompilation. This was particularly useful for closing current SWARM factories/runtime ownership, `.swb/.swb2/.swh2` resource selection, PRECOMP state consumers and renderer-selection paths.
 
 ### RenderDoc
 
@@ -81,6 +87,8 @@ draw parameters
 ```
 
 This connects offline binary/resource interpretations to physical GPU behavior.
+
+A RenderDoc snapshot is fixture evidence. It must not be promoted to a global renderer/state rule when the engine has a generic consumer that can be analyzed directly.
 
 ### 3Dmigoto
 
@@ -107,7 +115,9 @@ Dedicated inspection/validation tools were used for:
 - DXBC validation/reflection/disassembly;
 - shader-stage/source mapping;
 - resource-topology audits;
-- reproducible semantic/evidence reports.
+- model/material/texture graph validation;
+- reproducible semantic/evidence reports;
+- validation that fixture-scoped evidence cannot silently become a global manifest rule.
 
 ### PowerShell and Python
 
@@ -166,16 +176,50 @@ The core modern PRECOMP proof followed this order:
 11. Leave unrelated/private fields unknown unless separately proven.
 ```
 
-Current corpus:
-
-```text
-37,960 / 37,960 Raw Snappy -> DXBC
-7,947           VS
-30,009          PS
-4               CS
-```
+Exact stage populations and corpus-wide reconstruction counts belong in `../../GAME_VERSION.md` rather than this methodology guide.
 
 The outer `Effect` label is deliberately structural/project terminology. The pointers/counts/dataflow proof does not require claiming a private stripped EA class name.
+
+## Generic PRECOMP state-consumer validation
+
+State semantics were not closed by matching plausible raw values to RenderDoc output.
+
+The final generic-state method followed the common current consumer:
+
+```text
+1. Start from Pass StateStart / StateCount.
+2. Follow the serialized {stateId, rawValue} pair into the common cached setter.
+3. Follow the dispatcher branch for the exact state ID.
+4. Identify the destination D3D11 descriptor field or bind parameter.
+5. Follow helper translators instead of assuming raw numeric values already equal public D3D enums.
+6. Recover exact float/packed-value transforms where present.
+7. Keep the private source-level name bounded when it does not survive.
+```
+
+This produced mechanically exact public destinations for IDs `0x00..0x1E` without relying on a named VFX fixture.
+
+Important examples of direct helper/mechanics work include:
+
+```text
+comparison translator
+stencil-op translator
+blend-factor translator
+blend-op translator
+0x13 raw-bit float reinterpretation
+0x14 context-dependent depth-bias scaling
+0x1A packed-byte -> float factor
+0x1B blend-descriptor transformation
+```
+
+State `0x1B` demonstrates the stopping rule particularly well:
+
+```text
+consumer transform   exact
+D3D effect           exact
+private source name  unavailable
+```
+
+Correct publication: exact mechanics + `UNKNOWN_BOUNDED` private purpose.
 
 ## VFX/SWARM validation sequence
 
@@ -188,7 +232,8 @@ The later VFX work separated the following questions instead of trying to infer 
 4. Does it create/update child effects, a non-GPU endpoint or renderer-facing data?
 5. If graphics are required, which renderer family is actually reached?
 6. What model/geometry/material/texture resources are resolved?
-7. What D3D11 input/state/shaders are physically consumed?
+7. What PRECOMP selection is actually made when applicable?
+8. What D3D11 input/state/shaders are physically consumed?
 ```
 
 This produced the maintained rule:
@@ -197,7 +242,7 @@ This produced the maintained rule:
 authored SWARM family != CPU simulation path != GPU renderer family
 ```
 
-The canonical modder-facing family inventory is now:
+The canonical modder-facing family inventory is:
 
 ```text
 ../../vfx/AUTHORED_FAMILIES.md
@@ -221,15 +266,6 @@ Effect IID                     -> VisualEffectsInstanceMap MasterIID
 MasterIID                      -> effective split VisualEffects resource
 ```
 
-Current result:
-
-```text
-33,852 merged identities
-33,852 InstanceMap links
-33,852 split-resource resolutions
-0      identity orphans
-```
-
 The current executable route was then checked separately. Exact current strings/resource lookup dataflow established:
 
 ```text
@@ -238,6 +274,8 @@ Sims4EffectsOptH .swh2
 Sims4Effects     .swb
 SwarmDisableCollectionStreaming
 ```
+
+Build-specific identity populations are centralized in `../../GAME_VERSION.md`.
 
 This distinction matters: **resource identity coverage** and **runtime route availability** are different questions.
 
@@ -262,7 +300,7 @@ Evidence combined current VFX data, controlled playback, CPU/runtime dataflow an
 
 This is why an authored Ribbon can be proven to reach Dynamic `013f` for one fixture without turning “RibbonEffect = Dynamic 013f” into a universal rule.
 
-## Model/geometry validation
+## Model/geometry/material validation
 
 For the bounded Model Particle route, current MLOD source records establish a direct relation to:
 
@@ -275,9 +313,53 @@ IBUF
 
 The renderer work then checks how those resources become real D3D11 vertex/index data.
 
-The instanced route was additionally tied to an exact 124-byte per-instance vertex stream and `DrawIndexedInstanced`.
+The instanced route was additionally tied to an exact per-instance vertex stream and `DrawIndexedInstanced`.
 
-Explicit missing/unresolved model-resource classes were retained rather than replaced with arbitrary geometry.
+The material graph is validated as a separate resource layer:
+
+```text
+mesh materialReference
+-> direct MATD
+or
+-> MTST -> serialized MATD leaves
+-> ShaderData/resource keys/textures as applicable
+```
+
+All serialized MTST entries are retained in the normalized graph. No convenient variant is silently selected just to produce a renderable result.
+
+Explicit missing/unresolved resource classes are retained rather than replaced with arbitrary geometry, materials or textures. Current build-specific counts are in `../../GAME_VERSION.md`.
+
+## Runtime PRECOMP attribution method
+
+Structural PRECOMP decoding does not identify which record a runtime effect selects.
+
+A route-specific attribution must follow something equivalent to:
+
+```text
+runtime producer/context
+-> selector/input values
+-> selected PRECOMP record/technique
+-> pass when resolved
+-> shader refs/state slice
+-> exact renderer callback or submission scope
+```
+
+Candidate ranking, hash similarity or a visually plausible shader pair is not sufficient.
+
+The investigated Decal route and the maintained instanced Model Particle fixture are examples where exact runtime/PRECOMP attribution was established at the appropriate scope.
+
+## Fixture regression versus generic semantics
+
+Fixtures answer questions such as:
+
+```text
+what IA layout/state was actually bound for this draw?
+does our implementation reproduce the proven route?
+```
+
+They do not establish universal rules for authored families, renderer families or PRECOMP state IDs.
+
+The normalized manifest deliberately isolates fixture pipeline states from global routes to prevent this accidental promotion.
 
 ## Why template/editor success is not the same as format proof
 
@@ -293,6 +375,19 @@ It does not, by itself, prove:
 
 That is why editor-template tests are combined with parser/corpus/runtime/GPU evidence.
 
+## Negative evidence and stop rules
+
+A good audit records failed hypotheses too.
+
+Examples from the maintained research:
+
+- the historical Decal 16/16 event is real, but targeted work did not establish ownership by the closed 44/4 route;
+- Classic PRECOMP candidates can remain non-unique;
+- an exact Model Particle geometry match does not identify a unique authored owner;
+- strong MATD/PRECOMP raw-key equality does not by itself prove direct selector causality.
+
+When a private semantic is not required for mechanics and no first-party name survives, stop with `UNKNOWN_BOUNDED`.
+
 ## Unknown-field policy
 
 A binary template becomes dangerous when a convenient label looks more certain than the evidence behind it.
@@ -305,3 +400,44 @@ Therefore:
 - community tools can accelerate discovery without becoming authority;
 - correlations remain labeled correlations;
 - unsupported branches/failures are reported explicitly rather than silently coerced into a known path.
+
+## When to change the editor templates
+
+Change `.bt` / `.hexpat` when evidence changes the **serialized model**, for example:
+
+```text
+record size
+field offset
+relative-pointer rule
+table count/boundary
+serialized field role needed for safe navigation
+```
+
+Do not rewrite the parser body merely because a downstream consumer is better understood.
+
+The generic state-consumer work did not change the 8-byte state-pair representation or the Pass/state-table layout, so no template-body change is required for that semantic improvement alone.
+
+## Revalidation after a game update
+
+At minimum:
+
+1. fingerprint EXE/DX11/Win32 PRECOMP;
+2. re-run structural counts/bounds;
+3. revalidate stage-reference/source-stream mapping if PRECOMP changed;
+4. re-check state dispatcher/translators if the executable changed;
+5. re-run route-specific fixture checks only where affected;
+6. preserve previously bounded semantics unless new evidence genuinely promotes them.
+
+## Publication checklist
+
+Before publishing a new PRECOMP/VFX claim:
+
+```text
+[ ] exact build/fingerprint stated or inherited from canonical fixture
+[ ] serialized offsets/counts bounded where applicable
+[ ] current consumer identified when semantics depend on runtime
+[ ] fixture claim scoped as fixture/route, not global
+[ ] historical names labelled historical unless independently current
+[ ] private name not invented
+[ ] negative/ambiguous outcome retained when relevant
+```

@@ -57,4 +57,5 @@ Tags are useful for browsing the exact raw repository files corresponding to a d
 
 | Snapshot | The Sims 4 fixture | Notes |
 |---|---|---|
+| 2026-08-31 | The Sims 4 - 1.126.73.1030 | Expanded VFX/SWARM and PRECOMP documentation with validated runtime-to-renderer/PRECOMP routes, stronger fixture coverage and clarified evidence scopes. |
 | 2026-08-24 | The Sims 4 - 1.126.73.1030 | Initial public snapshot of the VFX, SWARM and PRECOMP research documentation and binary templates. |

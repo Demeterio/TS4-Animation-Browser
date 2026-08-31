@@ -8,6 +8,8 @@ It does **not** define a one-to-one authored-family mapping. Renderer membership
 
 For the named effects used as controls for these routes, see `TESTED_EFFECT_FIXTURES.md`.
 
+Build-specific corpus populations and closure metrics are centralized in `../GAME_VERSION.md`. Native `FUN_...` labels, absolute addresses and RVAs on this page are **build-specific evidence anchors for the validated executable**, not stable APIs or cross-build identifiers. Re-establish them if the executable changes.
+
 ## Shared D3D11 endpoint
 
 The bounded VFX routes converge on ordinary Direct3D 11 resource binding and draw submission.
@@ -23,6 +25,21 @@ DrawIndexedInstanced
 ```
 
 The exact input layout, buffers, shaders, resources and state vary by technique.
+
+## Renderer classifications represented by validated evidence
+
+The maintained renderer model distinguishes these reusable route categories:
+
+```text
+Classic particle/sprite
+Model Particle non-instanced
+Model Particle instanced
+Dynamic 013f
+Decal
+Sprite / beam renderer-interface handoff
+```
+
+These are renderer classifications, not authored SWARM families and not all private EA class names.
 
 ## Classic particle / sprite geometry
 
@@ -42,9 +59,30 @@ stride = 24 bytes
 
 Classic-looking VFX can still select different shader/state combinations; the vertex stride alone is not a complete material identity.
 
-## Model Particle — non-instanced
+`clue_sparkle` and `make_it_rain_c` are useful regression controls precisely because they can share Classic-style geometry/shader characteristics while using different output-merger behavior.
 
-Validated model geometry resolves through MODL/MLOD data.
+## Model Particle resource graph
+
+Validated Model Particle geometry resolves through real game resources:
+
+```text
+Particle model reference
+-> MODL
+-> MLOD
+-> mesh
+-> VRTF / VBUF / IBUF
+-> materialReference
+-> MATD directly
+   or
+-> MTST -> serialized MATD leaves
+-> ShaderData/resource keys/textures as applicable
+```
+
+The normalized graph keeps resource-resolution outcomes explicit. A missing MODL, missing ShaderData target or unsupported structure is not evidence for another renderer family and must not silently fall back to arbitrary geometry/materials.
+
+Documented model/material/texture populations belong in `../GAME_VERSION.md`.
+
+## Model Particle — non-instanced
 
 A proven MLOD `0x206` source record uses this 24-byte layout:
 
@@ -64,6 +102,22 @@ The route then resolves/uploads the vertex/index data and uses the shared indexe
 An encoded VRTF reference of zero is not automatically a fatal mesh error on the proven route. The native path can continue with VBUF/IBUF resolution/upload using its zero-VRTF handling.
 
 Do not replace that behavior with “VRTF zero means invalid model” without checking the actual case.
+
+### Layout variation is real
+
+Different non-instanced Model Particle fixtures use different captured IA layouts/strides. This is why a renderer family cannot be reduced to one universal mesh vertex declaration.
+
+The maintained controls include:
+
+```text
+accursed_hand_04
+ep05_flowers_table_hand_chrysanthemum_white
+ep12_pom_high_skill_fail01_left
+```
+
+Their exact fixture draw/stride details are kept in `TESTED_EFFECT_FIXTURES.md`.
+
+For EP12, installed MLOD geometry matches the captured IA input exactly for the compared candidates, while unique authored draw ownership remains bounded. Geometry identity and ownership are separate claims.
 
 ## Model Particle — instanced
 
@@ -100,41 +154,122 @@ The validated control reaches:
 DrawIndexedInstanced
 ```
 
+An exact fixture-scoped runtime/PRECOMP attribution also exists for the maintained instanced control. It remains fixture evidence rather than a family-wide Model Particle default; see `TESTED_EFFECT_FIXTURES.md`.
+
 ## Dynamic `013f`
 
 `Dynamic 013f` is a maintained descriptive renderer-family label used for an exact bounded runtime/GPU route.
 
 The executable from the validated build uses per-thread renderer lane/context state on the proven path. At least one authored Ribbon fixture and one authored Particle fixture converge on this renderer family.
 
+Representative controls:
+
+```text
+ability_transform_sparkle_trail  -> Ribbon-authored context
+gp07_mother_plant_spray          -> Particle-authored context
+```
+
 Safe statement:
 
 ```text
-some RibbonEffect and ParticleEffect cases -> Dynamic 013f
+specific proven Ribbon/Particle fixtures -> Dynamic 013f
 ```
 
 Unsafe statement:
 
 ```text
-all RibbonEffect == Dynamic 013f
+all RibbonEffect   == Dynamic 013f
+all ParticleEffect == Dynamic 013f
 ```
 
-The broader private meaning of neighboring raw renderer values must not be generalized from the representative cases.
+The broader private meaning of neighboring raw renderer values must not be generalized from representative cases.
 
-## Decal
+## Decal — exact investigated route
 
-The investigated Decal route is a dedicated indexed path.
+The investigated Decal route is mechanically closed end-to-end from the exact runtime renderer input through PRECOMP selection, the direct callback, physical stream binding and `DrawIndexed`.
 
-Proven physical preparation includes:
+### Runtime input -> PRECOMP selection
+
+`FUN_140B0C220` supplies exact renderer inputs through:
 
 ```text
-slot 0 vertex stream stride = 44
-slot 1 vertex stream stride = 4
-index buffer
-renderer-state descriptor
-DrawIndexed
+FUN_140A2A7C0
+-> FUN_140A2A8F0
+-> FUN_140A25C80 / FUN_140A2C5E0
+-> PRECOMP record context + selector
+-> FUN_1413689E0
 ```
 
-The descriptor is known to participate in renderer-state caching/application, but a private descriptor class/member name is not asserted where the exact name is unavailable.
+Targeted runtime probes establish exact producer -> selected context/selector -> shared-submit identity for the investigated accepted scope.
+
+A narrower selector-1 direct-callback scope resolves:
+
+```text
+selector = 1
+callback = FUN_140B11640
+```
+
+and reaches a resolved PRECOMP pass/shader/state-slice path.
+
+The PRECOMP binary format itself did not change. This proof supplies the runtime join to the already-known structural PRECOMP ABI.
+
+Build-specific record IDs and observation populations are regression evidence rather than renderer constants.
+
+### Physical preparation / draw
+
+Upstream preparation:
+
+```text
+0x30-byte draw records
+-> FUN_140B10AD0
+-> owner+0x448 slot-0 storage, 44 bytes per vertex
+-> owner+0x488 slot-1 storage, 4 bytes per companion element
+-> owner+0x4C8 index-buffer descriptor
+-> FUN_140B0A250 vertex-stream writers
+-> FUN_140B09D60 index writer
+```
+
+Exact callback:
+
+```text
+FUN_140B11640
+-> state/binding helper from owner+0x440
+-> IA slot 0 from owner+0x448, stride 44
+-> IA slot 1 from owner+0x488, stride 4
+-> 16-bit index buffer from owner+0x4C8
+-> DrawIndexed
+```
+
+Safe bounded statement:
+
+```text
+investigated Decal route
+= 44-byte slot 0 + 4-byte slot 1 + 16-bit index buffer + DrawIndexed
+```
+
+This is a route-level fact, not a declaration that every authored `DecalEffect` in every build must use exactly the same renderer layout.
+
+### Historical `16/16` event
+
+A real RenderDoc event with `16/16` bound vertex-buffer strides was captured while `discoball_ground_dots_decal` was active.
+
+Later targeted runtime/static causality tests established that the exact 44/4 callback is not mechanically bridged to that 16/16 activity in the investigated scope.
+
+Therefore the safe classification is:
+
+```text
+44/4 + 16-bit IB + DrawIndexed
+= mechanically proven investigated Decal route
+
+16/16 RenderDoc event
+= real fixture-window GPU observation
+= exact Decal ownership not established
+
+44/4 -> 16/16 transformation/bridge
+= do not model
+```
+
+This does not prove that no other Decal route can exist. Any additional route needs independent authored/runtime ownership and draw-path closure.
 
 ## Investigated authored `drawMode = 0x83`
 
@@ -166,13 +301,14 @@ Renderer work may be queued/deferred; a synchronous draw at the exact factory ca
 
 ## PRECOMP shader selection
 
-Once a renderer path reaches a shader technique, the validated DX11 PRECOMP fixture provides:
+Once a renderer path reaches a shader technique, the validated DX11 PRECOMP structure provides:
 
 ```text
 outer effect-like record
 -> Technique
 -> Pass
 -> VSRef / PSRef / CSRef
+-> render-state slice
 ```
 
 References are 1-based within their stage table:
@@ -181,19 +317,54 @@ References are 1-based within their stage table:
 0 = absent stage
 ```
 
-Validated corpus:
-
-```text
-VS   7,947
-PS  30,009
-CS       4
-```
-
-Each source record resolves to the exact physical Raw Snappy stream, which decompresses to DXBC.
+Each validated source record resolves to the exact physical Raw Snappy stream, which decompresses to DXBC. Build-specific shader populations are in `../GAME_VERSION.md`.
 
 See `../precomp/guides/FORMAT_REFERENCE.md` for the binary layout.
 
-## Material and state caution
+## Generic PRECOMP state consumer
+
+Do not use fixture render states to infer generic state semantics.
+
+The common EA PRECOMP consumer recovered from the validated executable provides the generic mapping:
+
+```text
+Pass StateStart / StateCount
+-> {stateId, rawValue}
+-> state dispatcher
+-> D3D11 depth/stencil, rasterizer, blend objects/bind parameters
+```
+
+Mechanically established groups include:
+
+```text
+0x00..0x0F depth/stencil + front/back handling
+0x10..0x14 rasterizer
+0x15..0x1E render-target-0 blend behavior
+```
+
+`0x1B` remains structurally named `BlendState.State0x1B`: exact behavior known, private conceptual name unknown.
+
+Exact converters and float/packed-value mechanics are documented in `../precomp/guides/FORMAT_REFERENCE.md`.
+
+## Fixture pipeline-state snapshots
+
+RenderDoc snapshots are normalized as **fixture regression evidence**.
+
+A snapshot can answer:
+
+```text
+what was bound for this exact captured fixture?
+```
+
+but cannot by itself answer:
+
+```text
+what must every effect in this authored/renderer family use?
+```
+
+The manifest keeps fixture state isolated from global routes for exactly this reason.
+
+## Material/state caution
 
 Geometry and shaders are not enough to reproduce the final image. The renderer also uses material/resource identity, textures, samplers, constant data and blend/depth/raster state.
 
@@ -202,24 +373,33 @@ The research proves important dataflow boundaries but deliberately does not rena
 Examples:
 
 - MLOD source records expose an exact `materialReference` field on the proven route;
-- the modern DX11 outer effect-like record `+0x00` is strongly correlated with known MATD Shader hashes but is not promoted to a current private EA field name;
-- Pass state slices are structurally/dataflow bounded, while individual state-pair business names remain conservative.
+- MATD/MTST bindings are resolved through exact resource identities and serialized entries rather than a preferred variant heuristic;
+- the validated DX11 outer effect-like record `+0x00` is strongly correlated with known MATD Shader hashes but is not promoted to a private EA field name or universal selector rule;
+- historical material-field candidates are not used as validated blend-state selectors without consumer/dataflow proof;
+- PRECOMP Pass state slices plus the validated common consumer provide the safe state path for the documented build.
 
 A renderer implementation should therefore preserve unknown state/material records and surface diagnostic mismatches instead of substituting an arbitrary shader or blend mode.
 
 ## Resource-resolution failures are not renderer semantics
 
-Validated Model Particle diagnostics preserve explicit classes:
+An unresolved/missing model or material target should be reported as that exact resource outcome. It is not evidence for a different renderer family and should not silently fall back to a cube, quad, arbitrary MATD or unrelated texture.
+
+Documented resolution populations are in `../GAME_VERSION.md`.
+
+## Regression rules
+
+A renderer change should be checked against the relevant classes of evidence:
 
 ```text
-17,578 model-bit refs
-17,478 MODL -> MLOD resolved
-72     unresolved IID
-20     no model candidate
-8      model decode failures
+serialized resource graph
+fixture IA/input layout
+fixture draw kind/count where relevant
+exact PRECOMP attribution where available
+generic PRECOMP state consumer
+fixture pipeline state for regression only
 ```
 
-An unresolved IID, missing model candidate or model decode failure should be reported as that exact failure. It is not evidence for a different renderer family and should not silently fall back to a cube/quad.
+Never make a failing fixture disappear by globally ignoring a bone, material, MTST entry, state ID or vertex element.
 
 ## Non-generalization checklist
 
@@ -227,6 +407,9 @@ Do not assume:
 
 - one authored family = one renderer;
 - one renderer = one shader pair;
+- a runtime-observed PRECOMP record is exclusively owned by one named effect;
+- the investigated Decal 44/4 route is a universal serialized property of family `0x03`;
+- the historical Decal-window `16/16` event belongs to the exact 44/4 route;
 - one Model Particle = one static model instance;
 - authored `ModelEffect` = Model Particle rendering;
 - raw `0x83` or `0x8B` has one universal meaning from one fixture;

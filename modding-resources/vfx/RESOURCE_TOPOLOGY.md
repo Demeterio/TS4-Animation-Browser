@@ -4,6 +4,8 @@ Fixture: see `../GAME_VERSION.md`.
 
 This document explains how the VFX library in the validated build is split across DBPF resource types and how that executable selects the split/streaming or merged representation.
 
+Build-specific resource/identity populations are centralized in `../GAME_VERSION.md` rather than duplicated here.
+
 ## Resource types
 
 Resource types established for the validated build:
@@ -24,19 +26,11 @@ The executable from that build maps them to these names and extensions:
 
 `VisualEffectsMerged` and `VisualEffectsInstanceMap` are different resources. The merged `.swb` is a VFX library; the `.swh2` resource is the instance/master mapping used by the split collection representation.
 
-## Validated fixture anchors
+## Fixture-specific resource examples
 
-For the documented corpus:
+The documented research fixture contains effective split `VisualEffects` resources plus one effective `VisualEffectsInstanceMap` and one effective `VisualEffectsMerged` resource. Exact populations belong in `../GAME_VERSION.md`.
 
-```text
-Effective VisualEffects resources                 12,430
-Effective VisualEffectsInstanceMap resources           1
-Effective VisualEffectsMerged resources                1
-Merged effect identities                          33,852
-InstanceMap Effect IID -> MasterIID links         33,852
-```
-
-Fixed resources observed in the validated research installation:
+The following exact TGIs are retained as **fixture examples**, not future-build constants:
 
 ```text
 VisualEffectsMerged
@@ -46,7 +40,7 @@ VisualEffectsInstanceMap
   1B19204A:0051185B:5A1E6D0162252B3E
 ```
 
-These anchors are useful for the documented fixture; tools should still resolve resources from the actual DBPF indexes instead of assuming that every future build will keep the same effective package placement.
+Tools should resolve resources from the actual effective DBPF indexes instead of assuming that every future build will keep these instance IDs or package placement.
 
 ## Identity relationship
 
@@ -112,14 +106,12 @@ A tool that assumes `EffectIID == resource instance` will therefore fail for val
 
 ## Complete validated identity audit
 
-The direct resource audit established:
+The current audit establishes, for the fixture in `../GAME_VERSION.md`:
 
 ```text
-Validated merged identities                         33,852
-Mapped through InstanceMap to existing split        33,852
-Merged Effect IID missing from InstanceMap               0
-Mapped MasterIID with no effective split resource        0
-Conflicting MasterIID mappings                           0
+every merged Effect IID is present in the InstanceMap
+every mapped MasterIID resolves to an effective split VisualEffects resource
+no conflicting MasterIID mapping is present
 ```
 
 Safe conclusion for the documented corpus:
@@ -150,7 +142,7 @@ SwarmDisableCollectionStreaming == true
 
 The config call supplies `0` as its default requested value. That proves the default passed by this callsite; it does **not** prove that no external/shipping configuration can override it.
 
-The phrase “merged fallback/non-streaming route” is a descriptive project phrase for this branch, not an asserted private EA class name.
+The phrase “merged fallback/non-streaming route” is descriptive project wording for this branch, not an asserted private EA class name.
 
 ## What a modern tool should normally do
 
@@ -165,11 +157,11 @@ requested Effect IID
 
 This preserves the exact EA identity relation and avoids relying only on effect-name deduplication.
 
-A separate decoder for the 64.6 MB merged resource may still be useful for historical/compatibility work, but it is not required merely to recover identities that are absent from the validated split library: the audit found none.
+A separate decoder for the merged resource may still be useful for historical/compatibility work, but it is not required merely to recover identities that are absent from the validated split library: the current audit found none.
 
 ## InstanceMap trailing bytes
 
-After the validated 33,852-entry mapping table, the documented InstanceMap contains 18 trailing bytes:
+After the validated mapping table, the documented InstanceMap contains 18 trailing bytes:
 
 ```text
 00000000000000000001000000000000FFFF
