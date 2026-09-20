@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.9.1</Version>
+    <AssemblyVersion>1.9.1.0</AssemblyVersion>
+    <FileVersion>1.9.1.0</FileVersion>
+    <AssemblyName>TS4AnimationBrowser</AssemblyName>
+    <Product>TS4 Animation Browser (by Demeterio)</Product>
+    <Copyright>Copyright © 2026 Demeterio</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TS4AnimationBrowser.Core\TS4AnimationBrowser.Core.csproj" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+    <PackageReference Include="Vortice.Wpf" Version="3.8.3" />
+  </ItemGroup>
+</Project>

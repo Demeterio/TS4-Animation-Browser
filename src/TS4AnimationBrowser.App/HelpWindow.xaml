@@ -1,0 +1,129 @@
+<Window x:Class="TS4AnimationBrowser.App.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TS4 Animation Browser Help" Width="820" Height="720"
+        MinWidth="660" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        Background="White" Foreground="#202020">
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="0,0,0,16">
+            <TextBlock Text="TS4 Animation Browser Help" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="v1.9.1" Margin="0,3,0,0" Foreground="#777777" />
+        </StackPanel>
+
+        <Border Grid.Row="1" BorderBrush="#D0D0D0" BorderThickness="1" CornerRadius="4" Padding="18">
+            <FlowDocumentScrollViewer VerticalScrollBarVisibility="Auto" IsToolBarVisible="False">
+                <FlowDocument FontFamily="Segoe UI" FontSize="14" PagePadding="0">
+                    <Paragraph FontSize="20" FontWeight="SemiBold" Margin="0,0,0,8">Getting started</Paragraph>
+                    <Paragraph Margin="0,0,0,10">
+                        Select <Bold>Select The Sims 4 Folder</Bold>, then choose the main installation folder that contains the game's Data, Delta and Game folders. The first scan can take a little time because the browser indexes animation, rig and VFX resources from the installed game packages.
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,16">
+                        After a successful scan, the library is saved locally so the next launch can restore it faster. If the game is patched or content is added, use <Bold>Select The Sims 4 Folder</Bold> again to rebuild the library from the current installation.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Library and search</Paragraph>
+                    <List Margin="18,0,0,14">
+                        <ListItem><Paragraph><Bold>Name</Bold> shows the decoded or indexed resource name when one is available.</Paragraph></ListItem>
+                        <ListItem><Paragraph><Bold>Kind</Bold> identifies animations, rigs, VFX and other supported resource categories.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Use the search box to filter by name, type, group, instance, pack or package.</Paragraph></ListItem>
+                        <ListItem><Paragraph><Bold>Hide Unknown</Bold> hides animation entries that cannot be classified reliably.</Paragraph></ListItem>
+                        <ListItem><Paragraph><Bold>Sim / Character</Bold>, <Bold>Object</Bold> and <Bold>VFX</Bold> narrow the library to the selected category.</Paragraph></ListItem>
+                        <ListItem><Paragraph><Bold>Refresh</Bold> clears the current search and restores the default filters.</Paragraph></ListItem>
+                    </List>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Preview viewer</Paragraph>
+                    <Paragraph Margin="0,0,0,8">
+                        Click a library row to load it in the viewer. Character and object animations are decoded with a compatible RIG when one can be resolved. VFX resources are previewed with the browser's experimental Direct3D renderer.
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        Some game resources use formats, shaders, particle behaviours or relationships that are not fully reproduced yet. When a preview is incomplete, the resource information and technical diagnostics can still be useful for modding work.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Camera controls</Paragraph>
+                    <List Margin="18,0,0,14">
+                        <ListItem><Paragraph>Left-drag in the viewer to orbit the camera.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Right-drag to pan the camera.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Use the mouse wheel or <Bold>Zoom + / Zoom -</Bold> to change distance.</Paragraph></ListItem>
+                        <ListItem><Paragraph><Bold>Front</Bold> faces the selected animation or VFX directly.</Paragraph></ListItem>
+                        <ListItem><Paragraph><Bold>Reset Camera</Bold> reframes the active preview.</Paragraph></ListItem>
+                    </List>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Playback</Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        Use <Bold>Play</Bold>, <Bold>Stop</Bold>, <Bold>Loop</Bold>, the timeline and the speed selector below the viewer. Animation timing comes from the decoded clip. VFX preview timing is an inspection timeline created by the browser and may not exactly match every in-game effect.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Technical details</Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        The information panel on the left is selectable and can be copied. For supported resources, <Bold>Technical details / Copy</Bold> opens a larger diagnostic report that can be copied or saved as a UTF-8 text file. These reports are intended to help identify resource keys, decoded structures and unsupported cases when working on mods.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Local cache and privacy</Paragraph>
+                    <Paragraph Margin="0,0,0,8">
+                        The browser creates <Bold>TS4AnimationBrowser.dtab</Bold> next to the application. It contains the indexed library needed for faster startup. The cache is compressed and protected with Windows DPAPI for the current Windows user. It can be deleted at any time; the browser will simply rebuild it after the next scan.
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        Game resources are read from the local The Sims 4 installation. The browser does not upload the indexed game library or the .dtab cache.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Update check</Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        At startup, the browser makes a small HTTPS request to the public Demeterio GitHub Releases endpoint to compare the installed version with the latest published release. It does not automatically download or install updates. If a newer release is available, the update button opens the public release page in your default web browser.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">System requirements</Paragraph>
+                    <List Margin="18,0,0,14">
+                        <ListItem><Paragraph><Bold>Windows 11 x64 is the recommended target.</Bold></Paragraph></ListItem>
+                        <ListItem><Paragraph>Windows 10 x64 may still run the application where .NET 8 is available, but Windows 10 Home/Pro 22H2 is no longer in normal Microsoft servicing and is not treated as a current officially supported target.</Paragraph></ListItem>
+                        <ListItem><Paragraph>A local installation of The Sims 4 is required to browse game resources.</Paragraph></ListItem>
+                        <ListItem><Paragraph>The application targets .NET 8 for Windows. Whether users need the .NET Desktop Runtime depends on how the release is published; a self-contained build includes the runtime.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Direct3D 11 support is required for VFX rendering.</Paragraph></ListItem>
+                    </List>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Known limitations in 1.9.1</Paragraph>
+                    <List Margin="18,0,0,14">
+                        <ListItem><Paragraph>VFX rendering is experimental and does not yet reproduce every game shader or particle behaviour.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Some model-particle spawning, lifetime, physics and alignment behaviours are approximated.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Some materials, transparency modes, normals and specialised model formats may render differently from the game.</Paragraph></ListItem>
+                        <ListItem><Paragraph>Unsupported or ambiguous resources may display diagnostics instead of a complete preview.</Paragraph></ListItem>
+                    </List>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Changelog</Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        <Bold>v1.9.1 — August 9, 2026</Bold><LineBreak/>
+                        Public preview release preparation, expanded in-app help, version metadata update, VFX/model preview improvements, technical diagnostics and general cleanup.
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Demeterio</Paragraph>
+                    <Paragraph Margin="0,0,0,4">
+                        Tumblr: <Hyperlink NavigateUri="https://demeterio.tumblr.com/" RequestNavigate="Hyperlink_RequestNavigate">https://demeterio.tumblr.com/</Hyperlink>
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,14">
+                        GitHub: <Hyperlink NavigateUri="https://github.com/Demeterio" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Demeterio</Hyperlink>
+                    </Paragraph>
+
+                    <Paragraph FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6">Disclaimer and copyright</Paragraph>
+                    <Paragraph Margin="0,0,0,6">
+                        TS4 Animation Browser is an independent, unofficial fan-made modding utility. It is not affiliated with, endorsed by, sponsored by or supported by Electronic Arts Inc. or Maxis.
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,6">
+                        The Sims, The Sims 4, EA, Maxis and related names, trademarks, game assets and intellectual property belong to their respective owners. Third-party libraries, technologies and trademarks remain the property of their respective authors and owners.
+                    </Paragraph>
+                    <Paragraph Margin="0">
+                        Copyright © 2026 Demeterio. The application code, original interface work and original documentation are protected by their applicable rights. No ownership is claimed over Electronic Arts, Maxis or third-party intellectual property.
+                    </Paragraph>
+                </FlowDocument>
+            </FlowDocumentScrollViewer>
+        </Border>
+
+        <Button Grid.Row="2" Width="90" Height="32" Margin="0,14,0,0" HorizontalAlignment="Right"
+                Content="Close" Click="Close_Click" />
+    </Grid>
+</Window>
